@@ -1,0 +1,9 @@
+production:
+  domain: <%= ENV.fetch('CANVAS_DOMAIN', 'localhost:6000') %>
+  # domain: "canvas.docker"
+
+test:
+  domain: <%= ENV.fetch('CANVAS_DOMAIN', 'localhost:6000') %>
+
+development:
+  domain: <%= ENV.fetch('CANVAS_DOMAIN', 'localhost:6000') %>
