@@ -1,3 +1,18 @@
+
+```bash
+./script/docker_dev_setup.sh
+bundle install
+yarn
+bundle exec rails canvas:compile_assets
+export PGHOST=localhost
+createdb canvas_development
+bundle exec rails db:initial_setup
+bundle exec rspec spec/models/assignment_spec.rb
+bundle exec rails server
+
+```
+
+```
 version: '2.3'
 services:
   jobs: &BASE
@@ -90,3 +105,4 @@ volumes:
   translations: {}
   yardoc: {}
   yarn-cache: {}
+```
