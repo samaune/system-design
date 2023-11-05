@@ -1,0 +1,36 @@
+version: '1.0'
+services:
+  db:
+    image: 'postgres:15.4'
+    restart: always
+    ports:
+    - 5432:5432
+    env_file:
+      - ../.env
+    volumes:
+      - /pv/postgres/data_pg/:/var/lib/postgresql/data/
+      - ./pg_config.conf:/etc/postgresql/postgresql.conf
+      - ./pg_hba.conf:/etc/postgresql/pg_hba.conf
+      #- ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - singha
+
+  db-mysql:
+    image: mariadb:10.7.8
+    restart: always
+    volumes:
+        - /mnt/d/volumes/data_mysql/:/var/lib/mysql/
+    env_file:
+      - ../.env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=portal
+    ports:
+      - 3306:3306
+    networks:
+      - singha
+    command: mysqld --lower_case_table_names=1 --skip-ssl --character_set_server=utf8mb4 --explicit_defaults_for_timestamp
+networks:
+  singha:
+    name: "local"
+    external: true
