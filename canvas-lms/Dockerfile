@@ -9,7 +9,7 @@ LABEL maintainer="Instructure"
 
 ARG RUBY
 ARG POSTGRES_CLIENT=14
-ENV APP_HOME /usr/src/app/
+ENV APP_HOME /var/canvas/
 ENV RAILS_ENV development
 ENV NGINX_MAX_UPLOAD_SIZE 10g
 ENV LANG en_US.UTF-8
@@ -22,9 +22,9 @@ ENV CANVAS_RAILS=${CANVAS_RAILS}
 ENV NODE_MAJOR 18
 ENV NODE_OPTIONS=--openssl-legacy-provider
 ENV YARN_VERSION 1.19.1-1
-ENV GEM_HOME /usr/src/app/.gem/$RUBY
+ENV GEM_HOME /var/canvas/.gem/$RUBY
 ENV PATH ${APP_HOME}bin:$GEM_HOME/bin:$PATH
-ENV BUNDLE_APP_CONFIG /usr/src/app/.bundle
+ENV BUNDLE_APP_CONFIG /var/canvas/.bundle
 
 WORKDIR $APP_HOME
 
@@ -36,7 +36,7 @@ ARG USER_ID
 # This step allows docker to write files to a host-mounted volume with the correct user permissions.
 # Without it, some linux distributions are unable to write at all to the host mounted volume.
 RUN if [ -n "$USER_ID" ]; then usermod -u "${USER_ID}" docker \
-        && chown --from=9999 docker /usr/src/nginx /usr/src/app -R; fi
+        && chown --from=9999 docker /var/canvas/nginx /var/canvas -R; fi
 
 RUN mkdir -p /etc/apt/keyrings \
   && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
@@ -63,10 +63,13 @@ RUN mkdir -p /etc/apt/keyrings \
        git \
        build-essential \
   && rm -rf /var/lib/apt/lists/* \
-  && mkdir -p /usr/src/app/.gem/ruby/$RUBY_MAJOR.0
+  && mkdir -p /var/canvas/.gem/ruby/$RUBY_MAJOR.0
 
 RUN gem install bundler --no-document -v 2.4.20 \
+  && bundle config set --local path vendor/bundle \
   && find $GEM_HOME ! -user docker | xargs chown docker:docker
-RUN npm install -g npm@9.8.1 && npm cache clean --force
+RUN npm install -g npm@latest && npm cache clean --force
+RUN yarn
+RUN bundle install
 
 # USER docker

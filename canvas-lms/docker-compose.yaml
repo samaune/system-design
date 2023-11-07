@@ -39,12 +39,20 @@ services:
       POSTGRES_PASSWORD: palaogman
     networks:
       - singha
+    command:
+      - /bin/bash
+      - -c
+      - |
+        bundle install
+        bundle exec rake db:initial_setup
+        bundle exec rake db:migrate
+    
 
-  jobs:
-    <<: *WEB
-    command: bundle exec script/delayed_job run
-    networks:
-      - singha
+  # jobs:
+  #   <<: *WEB
+  #   command:  bundle install && bundle exec rake db:initial_setup && bundle exec rake db:migrate
+  #   networks:
+  #     - singha
 
   redis:
     image: redis:alpine
