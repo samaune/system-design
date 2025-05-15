@@ -1,0 +1,28 @@
+networks:
+  singha:
+    external: true
+    name: singha
+    driver: bridge
+services:
+  sso:
+    image: quay.io/keycloak/keycloak:26.2
+    command: start-dev
+    env_file: .env
+    environment:
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: "xforwarded"
+      KC_HOSTNAME: "https://sso.singha.local"
+      APP_AUTH_URL: "https://www.singha.local/api/auth"
+      KC_HOSTNAME_STRICT: "false"
+      KC_DB: mssql
+      KC_DB_URL: "jdbc:sqlserver://${DB_HOST};databaseName=${KC_DB_NAME};user=${KC_DB_USERNAME};password=${KC_DB_PASSWORD};trustServerCertificate=true;encrypt=false;"
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_ADMIN_USERNAME}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD}
+    volumes:
+      - type: bind
+        source: /mnt/d/project/keycloak/providers
+        target: /opt/keycloak/providers
+    ports:
+      - "8080:8080"
+    networks:
+      - singha
